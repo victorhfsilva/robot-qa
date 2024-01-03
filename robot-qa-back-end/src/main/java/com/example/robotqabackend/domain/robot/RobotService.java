@@ -31,6 +31,16 @@ public class RobotService implements IRobotService{
     }
 
     @Override
+    public Robot findByName(String name) {
+        Optional<Robot> robot = robotRepository.findByName(name);
+        if (robot.isEmpty()) {
+            throw new EntityNotFoundException("Robot wasn't found on database.");
+        } else {
+            return robot.get();
+        }
+    }
+
+    @Override
     public List<Robot> findAll() {
         Iterable<Robot> robotsIterable = robotRepository.findAll();
         List<Robot> robots = StreamSupport
