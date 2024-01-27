@@ -28,7 +28,7 @@ public class SecurityFilters {
             requests.requestMatchers("/api/v1/robots", "GET").permitAll()
                     .requestMatchers("/api/v1/robots/*/token", "GET").permitAll()
                     .requestMatchers("/subscribe/**", "GET").permitAll()
-                    .anyRequest().authenticated())
+                    .anyRequest().permitAll())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

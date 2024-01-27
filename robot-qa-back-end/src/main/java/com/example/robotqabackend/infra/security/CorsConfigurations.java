@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 @Configuration
 public class CorsConfigurations {
-    private String allowedOrigins = "WEB_API:http://localhost:5173";
+    private String allowedOrigins = "http://localhost:5173";
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
