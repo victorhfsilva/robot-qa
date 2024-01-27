@@ -6,6 +6,10 @@ const MenuContainer = styled.ul`
     align-items: center;
     justify-content: space-evenly;
   
+    li {
+      list-style-type: none;
+    }
+
     a {
         position: relative;
         cursor: pointer;
@@ -13,7 +17,6 @@ const MenuContainer = styled.ul`
         font-family: ${props => props.theme.fonts.primaryFont};
         font-weight: ${props => props.theme.fontWeight.regular};
         font-size: ${props => props.theme.fontSize.sm};
-        list-style-type: none;
         text-decoration: none;
 
         &:hover {

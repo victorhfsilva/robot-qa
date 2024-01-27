@@ -4,6 +4,7 @@ import com.example.robotqabackend.domain.BaseEntityAudit;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @EqualsAndHashCode(callSuper=false)
@@ -40,6 +41,7 @@ public class Robot extends BaseEntityAudit {
     }
 
     public RobotDTO toDTO() {
-        return new RobotDTO(super.getId(), name, description);
+        List<String> questions = questionsAndAnswers.keySet().stream().toList();
+        return new RobotDTO(super.getId(), name, description, questions);
     }
 }
