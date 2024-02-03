@@ -6,11 +6,18 @@ import RobotsSelect from "./RobotsSelect";
 import AnswerContainer from "./AnswerContainer";
 import QuestionInput from "./QuestionInput";
 import Button from "../../components/button/Button";
+import { useWebsocket } from "../../hooks/useWebsocket";
+import { StompSubscription } from "@stomp/stompjs";
 
 function Chat() {
 
-    const [robots, setRobots] = useState<RobotModel[]>([]);
-    
+    const [robots, setRobots] = useState<RobotModel[]>([])
+    const [subscription, setSubscription] = useState<StompSubscription>()
+    const [selectedRobot, setSelectedRobot] = useState<string>('')
+    const [typedQuestion, setTypedQuestion] = useState<string>('')
+
+    const {message, getClient, subscribe, publish} = useWebsocket()
+
     useEffect(() => {
         // Fetch the data when the component mounts
         const fetchRobots = async () => {
@@ -25,11 +32,33 @@ function Chat() {
         fetchRobots();
       }, []);
 
+       
+    useEffect(() => {
+        return () => {
+          if (subscription) {
+            subscription.unsubscribe();
+          }
+        };
+      }, [subscription]);
+
+     
+    const handleAskButtonClick = async () => {
+        try {
+          const client = await getClient();
+          const subscription = subscribe(client, selectedRobot);
+          setSubscription(subscription);
+          publish(client, selectedRobot, typedQuestion);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+
     return (
         <MainContainer>
             <h2>Chat</h2>
             <p>Choose one Robot:</p>
-            <RobotsSelect>
+            <RobotsSelect value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)}>
                 {robots.map(
                     (robot: RobotModel) => (
                         <option value={robot.name} key={robot.id}>{robot.name}</option>
@@ -38,10 +67,12 @@ function Chat() {
             </RobotsSelect>
             <AnswerContainer>
                 <h3>Answer</h3>
+                <p>{message}</p>
             </AnswerContainer>
             <p>What is your question?</p>
-            <QuestionInput />
-            <Button>Ask</Button>
+            <QuestionInput value={typedQuestion} onChange={(e) => setTypedQuestion(e.target.value)}/>
+            <Button onClick={handleAskButtonClick}>Ask</Button>
+            
         </MainContainer>
     )
 }

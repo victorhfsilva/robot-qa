@@ -17,7 +17,7 @@ public class RobotWebsocketController {
     private RobotService robotService;
 
     @MessageMapping("/robots/{robot}")
-    @SendTo("/robots/{robot}")
+    @SendTo("/api/v1/robots/{robot}")
     public String ask(@DestinationVariable("robot") String robotName, String question){
         Robot robot = robotService.findByName(robotName);
         Map<String, String> questionsAndAnswers = robot.getQuestionsAndAnswers();
