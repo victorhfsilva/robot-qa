@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainContainer from "../../components/containers/MainContainer";
 import { RobotModel } from "../../models/robotModel";
 import { getRobots } from "../../service/getRobots.service";
-import RobotsSelect from "./RobotsSelect";
+import RobotsSelect from "../../components/select/RobotsSelect";
 import AnswerContainer from "./AnswerContainer";
 import QuestionInput from "./QuestionInput";
 import Button from "../../components/button/Button";
