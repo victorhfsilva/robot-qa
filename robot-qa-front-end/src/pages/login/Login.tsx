@@ -1,47 +1,34 @@
-import { useEffect, useState } from "react";
 import Button from "../../components/button/Button";
 import MainContainer from "../../components/containers/MainContainer";
 import FormInput from "./FormInput";
 import LoginForm from "./LoginForm";
 import { LoginModel } from "../../models/loginModel";
-import { RobotModel } from "../../models/robotModel";
-import { getRobots } from "../../service/getRobots.service";
-import RobotsSelect from "../../components/select/RobotsSelect";
+import { useState } from "react";
+import { getToken } from "../../service/getToken.service";
 
 function Login() {
-    const [robots, setRobots] = useState<RobotModel[]>([])
-    const [login, setLogin] = useState<LoginModel>({user:  '', password: '', robot: ''})
+    const [login, setLogin] = useState<LoginModel>({username:  '', password: ''})
+    const [authenticated, setAuthenticated] = useState<boolean>(false)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = e.target;
+        setAuthenticated(false)
         setLogin({
             ...login,
             [name]: value
         })
     }
     
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(`${login.user} ${login.password} ${login.robot}`)
+        try {
+            const token: string = await getToken(login)
+            localStorage.setItem('token', token)
+            setAuthenticated(true)
+        } catch {
+            setAuthenticated(false)
+        }
     }
-
-    useEffect(() => {
-        // Fetch the data when the component mounts
-        const fetchRobots = async () => {
-          try {
-            const data = await getRobots();
-            setRobots(data);
-            setLogin({
-                ...login,
-                'robot': data[0].name
-            })
-          } catch (error) {
-            alert('Error fetching robots:' + error);
-          }
-        };
-    
-        fetchRobots();
-      }, []);
 
     return (
         <MainContainer>
@@ -49,7 +36,7 @@ function Login() {
             <LoginForm>
                 <label>
                     User:
-                    <FormInput name="user" type="text" value={login.user} onChange={handleChange} />
+                    <FormInput name="username" type="text" value={login.username} onChange={handleChange} />
                 </label>
                 
                 <label>
@@ -57,18 +44,8 @@ function Login() {
                     <FormInput name="password" type="password" value={login.password} onChange={handleChange}/>
                 </label>
                 
-                <label>
-                    Robot:
-                    <RobotsSelect name="robot" value={login.robot} onChange={handleChange}>
-                        {robots.map(
-                            (robot: RobotModel) => (
-                                <option value={robot.name} key={robot.id}>{robot.name}</option>
-                            )
-                        )}
-                    </RobotsSelect>
-                </label>
-
                 <Button type="submit" onClick={handleSubmit}>Login</Button>
+                {authenticated && <p>{login.username} is authenticated</p>}
             </LoginForm>
         </MainContainer>
     )

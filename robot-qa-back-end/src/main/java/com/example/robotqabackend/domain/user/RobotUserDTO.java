@@ -14,6 +14,4 @@ public class RobotUserDTO {
 
     private String password;
 
-    private String robot;
-
 }

@@ -1,5 +1,4 @@
 export type LoginModel = {
-    user: string
+    username: string
     password: string
-    robot: string
 }

@@ -43,7 +43,7 @@ public class TokenControllerTest {
     @DisplayName("Controller should generate Token")
     public void generateTokenTest() throws Exception {
         String expectedToken = "token";
-        RobotUserDTO robotUserDTO = new RobotUserDTO("username", "password", "robot");
+        RobotUserDTO robotUserDTO = new RobotUserDTO("username", "password");
         String robotUserDTOJson = objectMapper.writeValueAsString(robotUserDTO);
 
         when(tokenService.generateToken(eq(robotUserDTO.getUsername()))).thenReturn(expectedToken);

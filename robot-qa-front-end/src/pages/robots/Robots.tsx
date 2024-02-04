@@ -12,10 +12,11 @@ function Robots() {
         // Fetch the data when the component mounts
         const fetchRobots = async () => {
           try {
-            const data = await getRobots();
+            const token: string | null = localStorage.getItem('token') 
+            const data = await getRobots(token ?? '');
             setRobots(data);
           } catch (error) {
-            alert('Error fetching robots:' + error);
+            console.log('Error fetching robots.');
           }
         };
     

@@ -27,8 +27,8 @@ public class SecurityFilters {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(requests ->
             requests
-                    .requestMatchers("/api/v1/robots", "GET").authenticated()
                     .requestMatchers("/api/v1/robots/token", "POST").permitAll()
+                    .requestMatchers("/api/v1/robots", "GET").authenticated()
                     .requestMatchers("/subscribe/**", "GET").permitAll()
                     .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
