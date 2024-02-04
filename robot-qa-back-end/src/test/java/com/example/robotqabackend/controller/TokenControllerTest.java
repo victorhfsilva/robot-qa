@@ -2,7 +2,9 @@ package com.example.robotqabackend.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.example.robotqabackend.domain.user.RobotUserDTO;
 import com.example.robotqabackend.infra.security.TokenService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -34,15 +37,22 @@ public class TokenControllerTest {
     @Mock
     private TokenService tokenService;
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
     @DisplayName("Controller should generate Token")
     public void generateTokenTest() throws Exception {
-        String robotName = "Robot Name";
         String expectedToken = "token";
-        when(tokenService.generateToken(eq(robotName))).thenReturn(expectedToken);
+        RobotUserDTO robotUserDTO = new RobotUserDTO("username", "password", "robot");
+        String robotUserDTOJson = objectMapper.writeValueAsString(robotUserDTO);
+
+        when(tokenService.generateToken(eq(robotUserDTO.getUsername()))).thenReturn(expectedToken);
 
         MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/v1/robots/"+ robotName +"/token")).andReturn().getResponse();
+                .post("/api/v1/robots/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(robotUserDTOJson))
+                .andReturn().getResponse();
 
         assertEquals(expectedToken, response.getContentAsString());
     }

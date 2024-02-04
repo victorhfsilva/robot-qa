@@ -5,6 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.IncorrectClaimException;
 import com.example.robotqabackend.domain.robot.Robot;
 import com.example.robotqabackend.domain.robot.RobotService;
+import com.example.robotqabackend.domain.user.RobotUser;
+import com.example.robotqabackend.domain.user.RobotUserService;
+import com.example.robotqabackend.domain.user.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +37,7 @@ public class TokenServiceTest {
     TokenService tokenService;
 
     @Mock
-    RobotService robotService;
+    RobotUserService robotUserService;
 
     private String jwtSecret = "LetMeIn123!";
 
@@ -43,32 +48,28 @@ public class TokenServiceTest {
     @Test
     @DisplayName("Should generate the right token")
     public void generateTokenTest(){
-        Map<String, String> questionsAndAnswers = new HashMap<>();
-        questionsAndAnswers.put("What is your name?", "My name is Robot");
-        questionsAndAnswers.put("What is your purpose?", "To assist humans");
-
-        String robotName = "Robot Name";
-
-        Robot robot = new Robot(
-                robotName,
-                "Robot Description",
-                questionsAndAnswers,
-                "Robot Creator",
+        RobotUser user = new RobotUser(
+                "username",
+                "password",
+                List.of(),
+                Role.USER,
+                "User Creator",
                 null,
                 null,
                 LocalDateTime.now(),
                 null,
-                null);
+                null
+        );
 
-        when(robotService.findByName(eq(robotName))).thenReturn(robot);
+        when(robotUserService.findByUsername(eq("username"))).thenReturn(user);
 
         String expectedToken = JWT.create()
                 .withIssuer(issuer)
-                .withSubject(robotName)
+                .withSubject(user.getUsername())
                 .withExpiresAt(LocalDateTime.now().plusHours(1L).toInstant(ZoneOffset.of("-03:00")))
                 .sign(algorithm);
 
-        String actualToken = tokenService.generateToken(robotName);
+        String actualToken = tokenService.generateToken(user.getUsername());
 
         assertEquals(expectedToken, actualToken);
     }
@@ -82,10 +83,13 @@ public class TokenServiceTest {
 
         String robotName = "Robot Name";
 
+        String username = "username";
+
         Robot robot = new Robot(
                 robotName,
                 "Robot Description",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -93,11 +97,24 @@ public class TokenServiceTest {
                 null,
                 null);
 
-        when(robotService.findByName(eq(robotName))).thenReturn(robot);
+        RobotUser user = new RobotUser(
+                username,
+                "password",
+                List.of(robot),
+                Role.USER,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
 
-        String token = tokenService.generateToken(robotName);
+        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
 
-        assertTrue(tokenService.isTokenValid(token));
+        String token = tokenService.generateToken(username);
+
+        assertTrue(tokenService.isTokenValid(token, robotName));
     }
 
     @Test
@@ -109,10 +126,13 @@ public class TokenServiceTest {
 
         String robotName = "Robot Name";
 
+        String username = "username";
+
         Robot robot = new Robot(
                 robotName,
                 "Robot Description",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -120,17 +140,73 @@ public class TokenServiceTest {
                 null,
                 null);
 
-        when(robotService.findByName(eq(robotName))).thenReturn(robot);
+        RobotUser user = new RobotUser(
+                username,
+                "password",
+                List.of(robot),
+                Role.USER,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
 
-        String expectedToken = tokenService.generateToken(robotName);
+        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
+
+        String expectedToken = tokenService.generateToken(username);
 
         String insertedToken = JWT.create()
                 .withIssuer(issuer)
-                .withSubject("Wrong Robot Name")
+                .withSubject("Wrong Username")
                 .withExpiresAt(LocalDateTime.now().plusHours(1L).toInstant(ZoneOffset.of("-03:00")))
                 .sign(algorithm);
 
-        assertFalse(tokenService.isTokenValid(insertedToken));
+        assertFalse(tokenService.isTokenValid(insertedToken, robotName));
+    }
+
+    @Test
+    @DisplayName("Should return false case the subject does not has robot access.")
+    public void validateWrongRobotSubjectTest(){
+        Map<String, String> questionsAndAnswers = new HashMap<>();
+        questionsAndAnswers.put("What is your name?", "My name is Robot");
+        questionsAndAnswers.put("What is your purpose?", "To assist humans");
+
+        String robotName = "Robot Name";
+
+        String username = "username";
+
+        Robot robot = new Robot(
+                robotName,
+                "Robot Description",
+                questionsAndAnswers,
+                List.of(),
+                "Robot Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null);
+
+        RobotUser user = new RobotUser(
+                username,
+                "password",
+                List.of(robot),
+                Role.USER,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
+
+        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
+
+        String token = tokenService.generateToken(username);
+
+        assertFalse(tokenService.isTokenValid(token, "Wrong Robot Name"));
     }
 
     @Test
@@ -142,10 +218,13 @@ public class TokenServiceTest {
 
         String robotName = "Robot Name";
 
+        String username = "username";
+
         Robot robot = new Robot(
                 robotName,
                 "Robot Description",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -153,9 +232,22 @@ public class TokenServiceTest {
                 null,
                 null);
 
-        when(robotService.findByName(eq(robotName))).thenReturn(robot);
+        RobotUser user = new RobotUser(
+                username,
+                "password",
+                List.of(robot),
+                Role.USER,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
 
-        String expectedToken = tokenService.generateToken(robotName);
+        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
+
+        String expectedToken = tokenService.generateToken(username);
 
         String insertedToken = JWT.create()
                 .withIssuer("Wrong Issuer")
@@ -164,7 +256,7 @@ public class TokenServiceTest {
                 .sign(algorithm);
 
         assertNotEquals(expectedToken, insertedToken);
-        assertThrows(IncorrectClaimException.class, () -> tokenService.isTokenValid(insertedToken));
+        assertThrows(IncorrectClaimException.class, () -> tokenService.isTokenValid(insertedToken, robotName));
     }
 
     @Test
@@ -176,10 +268,13 @@ public class TokenServiceTest {
 
         String robotName = "Robot Name";
 
+        String username = "username";
+
         Robot robot = new Robot(
                 robotName,
                 "Robot Description",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -187,9 +282,22 @@ public class TokenServiceTest {
                 null,
                 null);
 
-        when(robotService.findByName(eq(robotName))).thenReturn(robot);
+        RobotUser user = new RobotUser(
+                username,
+                "password",
+                List.of(robot),
+                Role.USER,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
 
-        String expectedToken = tokenService.generateToken(robotName);
+        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
+
+        String expectedToken = tokenService.generateToken(username);
 
         Algorithm wrongAlgorithm = Algorithm.HMAC256("Wrong Secret");
 
@@ -200,7 +308,7 @@ public class TokenServiceTest {
                 .sign(wrongAlgorithm);
 
         assertNotEquals(expectedToken, insertedToken);
-        assertFalse(tokenService.isTokenValid(insertedToken));
+        assertFalse(tokenService.isTokenValid(insertedToken, robotName));
     }
 
 }

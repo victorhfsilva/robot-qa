@@ -25,10 +25,12 @@ public class SecurityFilters {
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(requests ->
-            requests.requestMatchers("/api/v1/robots", "GET").permitAll()
-                    .requestMatchers("/api/v1/robots/*/token", "GET").permitAll()
+            requests
+                    .requestMatchers("/api/v1/robots", "GET").permitAll()
+                    .requestMatchers("/api/v1/robots/token", "POST").permitAll()
                     .requestMatchers("/subscribe/**", "GET").permitAll()
                     .anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

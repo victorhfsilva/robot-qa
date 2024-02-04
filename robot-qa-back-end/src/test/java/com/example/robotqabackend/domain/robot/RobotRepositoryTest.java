@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +36,7 @@ public class RobotRepositoryTest {
                 "RobotName",
                 "RobotDescription",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -57,6 +59,7 @@ public class RobotRepositoryTest {
                 "RobotName",
                 "RobotDescription",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,
@@ -72,6 +75,32 @@ public class RobotRepositoryTest {
     }
 
     @Test
+    @DisplayName("Should get saved robot by name on test database.")
+    void getRobotByName() {
+        Map<String, String> questionsAndAnswers = new HashMap<>();
+        questionsAndAnswers.put("What is your name?", "My name is Robot");
+        questionsAndAnswers.put("What is your purpose?", "To assist humans");
+
+        Robot robot = new Robot(
+                "RobotName",
+                "RobotDescription",
+                questionsAndAnswers,
+                List.of(),
+                "Robot Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null);
+
+        Robot savedRobot = robotRepository.save(robot);
+        String savedRobotName = savedRobot.getName();
+        Robot expectedRobot = robotRepository.findByName(savedRobotName).get();
+
+        assertEquals(robot, expectedRobot);
+    }
+
+    @Test
     @DisplayName("Should return Empty Optional if entity is not saved on test database.")
     void getNonExistingRobot() {
         Map<String, String> questionsAndAnswers = new HashMap<>();
@@ -82,6 +111,7 @@ public class RobotRepositoryTest {
                 "RobotName",
                 "RobotDescription",
                 questionsAndAnswers,
+                List.of(),
                 "Robot Creator",
                 null,
                 null,

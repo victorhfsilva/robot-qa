@@ -6,6 +6,8 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.example.robotqabackend.domain.robot.Robot;
 import com.example.robotqabackend.domain.robot.RobotService;
+import com.example.robotqabackend.domain.user.RobotUser;
+import com.example.robotqabackend.domain.user.RobotUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,32 +22,36 @@ public class TokenService {
     private String issuer = "RobotQA";
 
     @Autowired
-    private RobotService robotService;
+    private RobotUserService robotUserService;
 
     Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
 
-    public String generateToken(String robotName) {
-        Robot robot = robotService.findByName(robotName);
+    public String generateToken(String username) {
+        RobotUser user = robotUserService.findByUsername(username);
         return JWT.create()
                 .withIssuer(issuer)
-                .withSubject(robot.getName())
+                .withSubject(user.getUsername())
                 .withExpiresAt(LocalDateTime.now().plusHours(1L).toInstant(ZoneOffset.of("-03:00")))
                 .sign(algorithm);
     }
 
-    public Boolean isTokenValid(String token) {
+    public Boolean isTokenValid(String token, String robot) {
         try {
             JWT.require(algorithm)
                     .withIssuer(issuer)
                     .build()
                     .verify(token);
-            Robot subject = robotService.findByName(JWT.decode(token).getSubject());
-            return subject != null;
+            RobotUser subject = robotUserService.findByUsername(JWT.decode(token).getSubject());
+            return subject != null && doesUserHasRobotAccess(subject, robot);
         } catch (JWTDecodeException e) {
             return false;
         } catch (SignatureVerificationException e) {
             return false;
         }
+    }
+
+    public Boolean doesUserHasRobotAccess(RobotUser user, String robotName){
+        return !user.getRobots().stream().filter(robot -> robot.getName() == robotName).toList().isEmpty();
     }
 
 }

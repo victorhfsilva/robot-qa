@@ -1,13 +1,14 @@
 package com.example.robotqabackend.domain.robot;
 
 import com.example.robotqabackend.domain.BaseEntityAudit;
+import com.example.robotqabackend.domain.user.RobotUser;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, exclude = {"users"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
@@ -31,13 +32,22 @@ public class Robot extends BaseEntityAudit {
     @Column(name = "answers", nullable = false)
     private Map<String, String> questionsAndAnswers;
 
-    public Robot(String name, String description, Map<String, String> questionsAndAnswers,
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "robots_users",
+            joinColumns = @JoinColumn(name="robot_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<RobotUser> users;
+
+    public Robot(String name, String description, Map<String, String> questionsAndAnswers, List<RobotUser> users,
                  String createdBy, String updatedBy, String deactivatedBy,
                  LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deactivatedAt) {
         super(createdBy, updatedBy, deactivatedBy, createdAt, updatedAt, deactivatedAt);
         this.name = name;
         this.description = description;
         this.questionsAndAnswers = questionsAndAnswers;
+        this.users = users;
     }
 
     public RobotDTO toDTO() {
