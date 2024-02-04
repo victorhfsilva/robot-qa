@@ -114,7 +114,7 @@ public class TokenServiceTest {
 
         String token = tokenService.generateToken(username);
 
-        assertTrue(tokenService.isTokenValid(token, robotName));
+        assertTrue(tokenService.isTokenValid(token));
     }
 
     @Test
@@ -163,50 +163,7 @@ public class TokenServiceTest {
                 .withExpiresAt(LocalDateTime.now().plusHours(1L).toInstant(ZoneOffset.of("-03:00")))
                 .sign(algorithm);
 
-        assertFalse(tokenService.isTokenValid(insertedToken, robotName));
-    }
-
-    @Test
-    @DisplayName("Should return false case the subject does not has robot access.")
-    public void validateWrongRobotSubjectTest(){
-        Map<String, String> questionsAndAnswers = new HashMap<>();
-        questionsAndAnswers.put("What is your name?", "My name is Robot");
-        questionsAndAnswers.put("What is your purpose?", "To assist humans");
-
-        String robotName = "Robot Name";
-
-        String username = "username";
-
-        Robot robot = new Robot(
-                robotName,
-                "Robot Description",
-                questionsAndAnswers,
-                List.of(),
-                "Robot Creator",
-                null,
-                null,
-                LocalDateTime.now(),
-                null,
-                null);
-
-        RobotUser user = new RobotUser(
-                username,
-                "password",
-                List.of(robot),
-                Role.USER,
-                "User Creator",
-                null,
-                null,
-                LocalDateTime.now(),
-                null,
-                null
-        );
-
-        when(robotUserService.findByUsername(eq(username))).thenReturn(user);
-
-        String token = tokenService.generateToken(username);
-
-        assertFalse(tokenService.isTokenValid(token, "Wrong Robot Name"));
+        assertFalse(tokenService.isTokenValid(insertedToken));
     }
 
     @Test
@@ -256,7 +213,7 @@ public class TokenServiceTest {
                 .sign(algorithm);
 
         assertNotEquals(expectedToken, insertedToken);
-        assertThrows(IncorrectClaimException.class, () -> tokenService.isTokenValid(insertedToken, robotName));
+        assertThrows(IncorrectClaimException.class, () -> tokenService.isTokenValid(insertedToken));
     }
 
     @Test
@@ -308,7 +265,7 @@ public class TokenServiceTest {
                 .sign(wrongAlgorithm);
 
         assertNotEquals(expectedToken, insertedToken);
-        assertFalse(tokenService.isTokenValid(insertedToken, robotName));
+        assertFalse(tokenService.isTokenValid(insertedToken));
     }
 
 }

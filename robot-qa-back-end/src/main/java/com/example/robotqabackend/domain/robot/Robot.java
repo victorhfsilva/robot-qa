@@ -26,10 +26,10 @@ public class Robot extends BaseEntityAudit {
     @CollectionTable(
             name = "questions_answers",
             joinColumns = {
-                    @JoinColumn(name = "questions_id", referencedColumnName = "id")
+                    @JoinColumn(name = "robot_id", referencedColumnName = "id")
             })
     @MapKeyColumn(name = "question")
-    @Column(name = "answers", nullable = false)
+    @Column(name = "answer", nullable = false)
     private Map<String, String> questionsAndAnswers;
 
     @ManyToMany(fetch = FetchType.EAGER)

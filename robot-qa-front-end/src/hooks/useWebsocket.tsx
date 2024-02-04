@@ -8,7 +8,9 @@ export const useWebsocket = () => {
     const getClient = async () : Promise<Client> => {
         return await new Promise<Client> ((resolve, reject) => {
                 
-            const client = new Client({brokerURL: 'ws://localhost:8080/subscribe'})
+            const client = new Client({
+                brokerURL: 'ws://localhost:8080/subscribe'
+            })
 
             client.onConnect = () => {
                 console.log(`Connected.`)

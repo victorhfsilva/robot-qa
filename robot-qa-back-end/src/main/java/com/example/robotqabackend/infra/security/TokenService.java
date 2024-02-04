@@ -35,23 +35,19 @@ public class TokenService {
                 .sign(algorithm);
     }
 
-    public Boolean isTokenValid(String token, String robot) {
+    public Boolean isTokenValid(String token) {
         try {
             JWT.require(algorithm)
                     .withIssuer(issuer)
                     .build()
                     .verify(token);
             RobotUser subject = robotUserService.findByUsername(JWT.decode(token).getSubject());
-            return subject != null && doesUserHasRobotAccess(subject, robot);
+            return subject != null;
         } catch (JWTDecodeException e) {
             return false;
         } catch (SignatureVerificationException e) {
             return false;
         }
-    }
-
-    public Boolean doesUserHasRobotAccess(RobotUser user, String robotName){
-        return !user.getRobots().stream().filter(robot -> robot.getName() == robotName).toList().isEmpty();
     }
 
 }

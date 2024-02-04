@@ -26,9 +26,7 @@ public class TokenFilter extends OncePerRequestFilter {
 
         String token = TokenUtils.extractToken(authorizationHeader);
 
-        String robot = request.getHeader("Robot");
-
-        if (tokenService.isTokenValid(token, robot)){
+        if (tokenService.isTokenValid(token)){
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                     new UsernamePasswordAuthenticationToken(null, null, null);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

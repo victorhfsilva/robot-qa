@@ -17,6 +17,7 @@ function Chat() {
     const [typedQuestion, setTypedQuestion] = useState<string>('')
 
     const {message, getClient, subscribe, publish} = useWebsocket()
+   
 
     useEffect(() => {
         // Fetch the data when the component mounts
@@ -24,6 +25,7 @@ function Chat() {
           try {
             const data = await getRobots();
             setRobots(data);
+            setSelectedRobot(data[0].name)
           } catch (error) {
             alert('Error fetching robots:' + error);
           }

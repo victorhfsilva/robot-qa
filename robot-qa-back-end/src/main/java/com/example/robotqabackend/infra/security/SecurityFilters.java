@@ -1,5 +1,6 @@
 package com.example.robotqabackend.infra.security;
 
+import com.example.robotqabackend.domain.user.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +27,10 @@ public class SecurityFilters {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(requests ->
             requests
-                    .requestMatchers("/api/v1/robots", "GET").permitAll()
+                    .requestMatchers("/api/v1/robots", "GET").authenticated()
                     .requestMatchers("/api/v1/robots/token", "POST").permitAll()
                     .requestMatchers("/subscribe/**", "GET").permitAll()
-                    .anyRequest().permitAll())
+                    .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

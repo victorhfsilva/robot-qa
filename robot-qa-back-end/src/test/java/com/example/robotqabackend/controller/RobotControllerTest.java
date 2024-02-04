@@ -3,6 +3,10 @@ package com.example.robotqabackend.controller;
 import com.example.robotqabackend.domain.robot.Robot;
 import com.example.robotqabackend.domain.robot.RobotDTO;
 import com.example.robotqabackend.domain.robot.RobotService;
+import com.example.robotqabackend.domain.user.RobotUser;
+import com.example.robotqabackend.domain.user.RobotUserService;
+import com.example.robotqabackend.domain.user.Role;
+import com.example.robotqabackend.infra.security.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,8 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -24,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -41,6 +48,12 @@ public class RobotControllerTest {
 
     @Mock
     private RobotService robotService;
+
+    @Mock
+    private RobotUserService robotUserService;
+
+    @Autowired
+    private TokenService tokenService;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -63,26 +76,32 @@ public class RobotControllerTest {
                 null,
                 null);
 
-        Robot robot2 = new Robot(
-                "Robot Name 2",
-                "Robot Description 2",
-                questionsAndAnswers,
-                List.of(),
-                "Robot Creator",
+        List<Robot> robots = List.of(robot1);
+
+        RobotUser user = new RobotUser(
+                "victor",
+                "password",
+                robots,
+                Role.USER,
+                "User Creator",
                 null,
                 null,
                 LocalDateTime.now(),
                 null,
-                null);
+                null
+        );
 
-        List<Robot> robots = List.of(robot1, robot2);
 
-        when(robotService.findAll()).thenReturn(robots);
+        when(robotUserService.findByUsername(any())).thenReturn(user);
 
         List<RobotDTO> expectedRobots = robots.stream().map(i -> i.toDTO()).toList();
 
+        HttpHeaders headers = new HttpHeaders();
+        String token = tokenService.generateToken(user.getUsername());
+        headers.setBearerAuth(token);
+
         MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/v1/robots")).andReturn().getResponse();
+                .get("/api/v1/robots").headers(headers)).andReturn().getResponse();
 
         String actualRobotsJson = response.getContentAsString();
         List<RobotDTO> actualRobots = objectMapper.readValue(actualRobotsJson, new TypeReference<List<RobotDTO>>() {});

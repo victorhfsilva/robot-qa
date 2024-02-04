@@ -3,6 +3,10 @@ package com.example.robotqabackend.controller;
 import com.example.robotqabackend.domain.robot.Robot;
 import com.example.robotqabackend.domain.robot.RobotDTO;
 import com.example.robotqabackend.domain.robot.RobotRepository;
+import com.example.robotqabackend.domain.user.RobotUser;
+import com.example.robotqabackend.domain.user.RobotUserRepository;
+import com.example.robotqabackend.domain.user.Role;
+import com.example.robotqabackend.infra.security.TokenService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +39,12 @@ public class RobotControllerIT {
     private RobotRepository robotRepository;
 
     @Autowired
+    private RobotUserRepository robotUserRepository;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
     private RestTemplateBuilder builder;
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -41,6 +52,7 @@ public class RobotControllerIT {
     @BeforeEach
     void clearDatabase() {
         robotRepository.deleteAll();
+        robotUserRepository.deleteAll();
     }
 
     @Test
@@ -50,11 +62,26 @@ public class RobotControllerIT {
         questionsAndAnswers.put("What is your name?", "My name is Robot");
         questionsAndAnswers.put("What is your purpose?", "To assist humans");
 
+        RobotUser user = new RobotUser(
+                "username",
+                "password",
+                List.of(),
+                Role.ADMIN,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
+
+        RobotUser savedUser = robotUserRepository.save(user);
+
         Robot robot1 = new Robot(
                 "Robot Name 1",
                 "Robot Description 1",
                 questionsAndAnswers,
-                List.of(),
+                List.of(savedUser),
                 "Robot Creator",
                 null,
                 null,
@@ -74,14 +101,18 @@ public class RobotControllerIT {
                 null,
                 null);
 
-        robotRepository.save(robot1);
-        robotRepository.save(robot2);
+        Robot savedRobot1 = robotRepository.save(robot1);
+        Robot savedRobot2 = robotRepository.save(robot2);
 
-        List<Robot> robots = List.of(robot1, robot2);
+        List<Robot> robots = List.of(robot1);
         List<RobotDTO> expectedRobots = robots.stream().map(i -> i.toDTO()).toList();
 
+        HttpHeaders headers = new HttpHeaders();
+        String token = tokenService.generateToken(user.getUsername());
+        headers.setBearerAuth(token);
+
         RestTemplate template = builder.rootUri("http://localhost:" + port).build();
-        ResponseEntity<String> response = template.exchange(RequestEntity.get("/api/v1/robots").build(), String.class);
+        ResponseEntity<String> response = template.exchange(RequestEntity.get("/api/v1/robots").headers(headers).build(), String.class);
 
         List<RobotDTO> actualRobots = objectMapper.readValue(response.getBody(), new TypeReference<List<RobotDTO>>() {});
 
