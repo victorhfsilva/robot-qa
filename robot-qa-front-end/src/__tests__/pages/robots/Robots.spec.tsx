@@ -12,7 +12,7 @@ jest.mock('../../../service/getRobots.service', () => ({
   }));
   
  
-  test('renders robots correctly', async () => {
+  it('should render robots correctly', async () => {
     render(
         <ThemeProvider theme={defaultTheme}>
             <Robots />

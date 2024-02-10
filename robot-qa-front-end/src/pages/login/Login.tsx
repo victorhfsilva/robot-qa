@@ -32,7 +32,7 @@ function Login() {
 
     return (
         <MainContainer>
-            <h2>Login</h2>
+            <h2>Login:</h2>
             <LoginForm>
                 <label>
                     User:

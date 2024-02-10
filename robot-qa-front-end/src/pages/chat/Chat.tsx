@@ -74,7 +74,7 @@ function Chat() {
                 <p>{message}</p>
             </AnswerContainer>
             <p>What is your question?</p>
-            <QuestionInput value={typedQuestion} onChange={(e) => setTypedQuestion(e.target.value)}/>
+            <QuestionInput value={typedQuestion} onChange={(e) => setTypedQuestion(e.target.value)} data-testid="question input"/>
             <Button onClick={handleAskButtonClick}>Ask</Button>
             
         </MainContainer>

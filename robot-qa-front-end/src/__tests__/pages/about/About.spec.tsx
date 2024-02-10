@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import { ThemeProvider } from "styled-components";
 import defaultTheme from "../../../themes/default";
 
-it('renders page', () => {
+it('should renders page', () => {
   render(
     <ThemeProvider theme={defaultTheme}>
       <About />
@@ -14,7 +14,7 @@ it('renders page', () => {
   expect(screen.getByText("This page was develop by Victor a really committed developer anxious to learn everyday more.")).toBeInTheDocument();
 });
   
-it('clicking button opens Github page in new tab', () => {
+test('clicking button opens Github page in new tab', () => {
   render(
     <ThemeProvider theme={defaultTheme}>
       <About />
