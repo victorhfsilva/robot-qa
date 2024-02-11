@@ -1,0 +1,142 @@
+{
+	"info": {
+		"_postman_id": "b5f677cc-d7a0-4de4-b694-2c5db4a220ac",
+		"name": "Robot QA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27690492"
+	},
+	"item": [
+		{
+			"name": "Get Robots",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const response = '[{\"id\":1,\"name\":\"13DC-2\",\"description\":\"Created to fulfill all your desires.\",\"questions\":[\"How are you powered?\",\"What is your purpose?\",\"What can you do?\"]},{\"id\":2,\"name\":\"2345-1\",\"description\":\"Created to make you feel human.\",\"questions\":[\"Do you have emotions?\",\"What is your purpose?\",\"What can you do?\"]}]'",
+							"",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(response);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url: pm.variables.get('base_url') + \"/robots/token\",",
+							"    method: \"POST\",",
+							"    header: {",
+							"        'Content-Type': 'application/json'",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({",
+							"            \"username\": \"victor\",",
+							"            \"password\": \"password\"",
+							"        })",
+							"    }",
+							"}, function (err, response) {",
+							"    const token = response.text();",
+							"    pm.request.headers.add({key: \"Authorization\",value:  \"Bearer \" + token})",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/robots",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"robots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"victor\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/robots/token",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"robots",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		}
+	]
+}
