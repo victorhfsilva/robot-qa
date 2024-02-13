@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"robots"})
 @Entity
 @Table(name = "users")
 public class RobotUser extends BaseEntityAudit {

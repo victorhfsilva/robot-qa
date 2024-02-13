@@ -2,7 +2,10 @@ package com.example.robotqabackend.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.example.robotqabackend.domain.user.RobotUser;
 import com.example.robotqabackend.domain.user.RobotUserDTO;
+import com.example.robotqabackend.domain.user.RobotUserService;
+import com.example.robotqabackend.domain.user.Role;
 import com.example.robotqabackend.infra.security.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +21,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -37,6 +44,9 @@ public class TokenControllerTest {
     @Mock
     private TokenService tokenService;
 
+    @Mock
+    private RobotUserService robotUserService;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -44,8 +54,23 @@ public class TokenControllerTest {
     public void generateTokenTest() throws Exception {
         String expectedToken = "token";
         RobotUserDTO robotUserDTO = new RobotUserDTO("username", "password");
+
+        RobotUser robotUser = new RobotUser(
+                "username",
+                "password",
+                List.of(),
+                Role.ADMIN,
+                "User Creator",
+                null,
+                null,
+                LocalDateTime.now(),
+                null,
+                null
+        );
+
         String robotUserDTOJson = objectMapper.writeValueAsString(robotUserDTO);
 
+        when(robotUserService.findByUsername("username")).thenReturn(robotUser);
         when(tokenService.generateToken(eq(robotUserDTO.getUsername()))).thenReturn(expectedToken);
 
         MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders
