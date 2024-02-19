@@ -45,7 +45,7 @@ function Login() {
                 </label>
                 
                 <Button type="submit" onClick={handleSubmit}>Login</Button>
-                {authenticated && <p>{login.username} is authenticated</p>}
+                {authenticated && <p id="isAuthenticated">{login.username} is authenticated</p>}
             </LoginForm>
         </MainContainer>
     )

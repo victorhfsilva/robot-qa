@@ -62,7 +62,7 @@ function Chat() {
         <MainContainer>
             <h2>Chat</h2>
             <p>Choose one Robot:</p>
-            <RobotsSelect value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)}>
+            <RobotsSelect id="robots-select" value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)}>
                 {robots.map(
                     (robot: RobotModel) => (
                         <option value={robot.name} key={robot.id}>{robot.name}</option>
