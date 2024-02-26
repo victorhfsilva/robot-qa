@@ -1,0 +1,39 @@
+version: '2.4'
+
+services:
+  robot-qa-front-end:
+    build:
+      dockerfile: ./robot-qa-front-end/Dockerfile
+      context: .
+    image: victorhfsilva/robot-qa-front-end
+    ports: 
+      - "8081:80"
+    networks:
+      - robot-qa-network 
+
+  robot-qa-postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: robot_qa
+    networks:
+      - robot-qa-network 
+
+  robot-qa-back-end:
+    build:
+      dockerfile: ./robot-qa-back-end/Dockerfile
+      context: .
+    image: victorhfsilva/robot-qa-back-end
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./robot-qa-back-end/.docker-env
+    depends_on:
+      - robot-qa-postgres
+    networks:
+      - robot-qa-network 
+
+networks:
+  robot-qa-network:
+    driver: bridge
