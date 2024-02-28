@@ -1,18 +1,18 @@
-# FROM node AS build
+FROM node AS build
 
-# WORKDIR /robot-qa-front-end
+WORKDIR /robot-qa-front-end
 
-# COPY package.json /robot-qa-front-end/package.json
-# COPY package-lock.json /robot-qa-front-end/package-lock.json
+COPY package.json .
+COPY package-lock.json .
 
-# RUN ["npm", "ci"]
+RUN ["npm", "ci"]
 
-# COPY . /robot-qa-front-end
+COPY . .
 
-# RUN ["npm", "run", "build"]
+RUN ["npm", "run", "build"]
 
 FROM nginx
 
-COPY /robot-qa-front-end/dist /usr/share/nginx/html
+COPY --from=build /robot-qa-front-end/dist /usr/share/nginx/html
 
 EXPOSE 80
