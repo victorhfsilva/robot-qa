@@ -1,23 +1,31 @@
 package pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
-public class HomePage {
+public class HomePage extends BasePage{
 
-    private WebDriver driver;
-
-    private By aboutButton = By.xpath("//button[contains(text(),'More About Us')]");
+    @FindBy(xpath = "//button[contains(text(),'More About Us')]")
+    private WebElement aboutButton;
 
     public HomePage(WebDriver driver) {
-        this.driver = driver;
+        super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    public void clickAboutButton(){
-        driver.findElement(aboutButton).click();
+    public HomePage navigateTo(){
+        driver.get(getHomeAddress());
+        return this;
     }
 
-    public By getAboutButton() {
+    public HomePage clickAboutButton(){
+        aboutButton.click();
+        return this;
+    }
+
+    public WebElement getAboutButton() {
         return aboutButton;
     }
 }

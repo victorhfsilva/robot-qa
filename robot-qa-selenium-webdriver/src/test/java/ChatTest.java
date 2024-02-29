@@ -1,16 +1,13 @@
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.ChatPage;
 import pages.LoginPage;
-import java.lang.Thread;
-
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ChatTest {
@@ -23,31 +20,20 @@ public class ChatTest {
 
     @BeforeAll
     public static void setup() {
-        driver.get("http://localhost:5173/login");
+        WebElement loginButton = loginPage.getLoginButton();
+        loginPage.navigateTo()
+                    .maximize()
+                    .waitForVisibilityOf(loginButton, Duration.ofSeconds(10));
 
-        driver.manage().window().maximize();
-
-        WebElement loginButton = driver.findElement(loginPage.getLoginButton());
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10L));
-        wait.until(ExpectedConditions.visibilityOf(loginButton));
-
-        loginPage.setUserInput("victor");
-        loginPage.setPasswordInput("password");
-        loginPage.clickLoginButton();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        loginPage.setUserInput("victor")
+                    .setPasswordInput("password")
+                    .clickLoginButton()
+                    .wait(Duration.ofSeconds(3));
 
         WebElement authenticationStatus = driver.findElement(By.id("isAuthenticated"));
         Assertions.assertTrue(authenticationStatus.isDisplayed());
 
-        WebElement robotsLink = driver.findElement(By.xpath("//a[@href='/chat']"));
-        robotsLink.click();
-
-        WebElement robotTitle1 = driver.findElement(chatPage.getRobotsSelect());
-
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10L));
-        wait.until(ExpectedConditions.visibilityOf(robotTitle1));
+        chatPage.navigateTo().waitForVisibilityOf(chatPage.getRobotsSelect(), Duration.ofSeconds(10));
     }
 
     @AfterAll
@@ -55,129 +41,54 @@ public class ChatTest {
         driver.quit();
     }
 
-    @Test
+    @ParameterizedTest
     @Order(1)
-    public void question11Test() throws InterruptedException {
-        Thread.sleep(1000L);
+    @CsvSource({
+        "How are you powered?, 13DC-2, I am powered by electricity.",
+        "What can you do?, 13DC-2, I can do all you wish.",
+        "What is your purpose?, 13DC-2, To fulfill your desires."
+    })
+    void questionTest(String question, String robot, String expectedAnswer) throws InterruptedException {
+        chatPage.clearQuestionTextArea().wait(Duration.ofSeconds(5));
 
-        chatPage.setQuestionTextArea("How are you powered?");
-        chatPage.selectRobot("13DC-2");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
+        chatPage.setQuestionTextArea(question)
+                .selectRobot(robot)
+                .clickAskButton();
 
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'I am powered by electricity.')]"));
+        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), '" + expectedAnswer + "')]"));
         Assertions.assertTrue(answer.isDisplayed());
     }
 
-    @Test
+    @ParameterizedTest
     @Order(2)
-    public void question12Test() throws InterruptedException {
-        Thread.sleep(1000L);
+    @CsvSource({
+        "What is your purpose?, 2345-1, To make you feel.",
+        "What can you do?, 2345-1, I can make you feel like never before.",
+        "Do you have emotions?, 2345-1, No, I do not have emotions."
+    })
+    void questionTest2(String question, String robot, String expectedAnswer) throws InterruptedException {
+        chatPage.clearQuestionTextArea().wait(Duration.ofSeconds(5));
 
-        chatPage.setQuestionTextArea("What can you do?");
-        chatPage.selectRobot("13DC-2");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
+        chatPage.setQuestionTextArea(question)
+                .selectRobot(robot)
+                .clickAskButton();
 
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'I can do all you wish.')]"));
+        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), '" + expectedAnswer + "')]"));
         Assertions.assertTrue(answer.isDisplayed());
     }
 
-    @Test
+    @ParameterizedTest
     @Order(3)
-    public void question13Test() throws InterruptedException {
-        Thread.sleep(1000L);
+    @CsvSource({
+        "Wrong Question, 13DC-2",
+        "Wrong Question, 2345-1"
+    })
+    public void wrongQuestionTest(String wrongQuestion, String robot) throws InterruptedException {
+        chatPage.clearQuestionTextArea().wait(Duration.ofSeconds(5));
 
-        chatPage.setQuestionTextArea("What is your purpose?");
-        chatPage.selectRobot("13DC-2");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'To fulfill your desires.')]"));
-        Assertions.assertTrue(answer.isDisplayed());
-    }
-
-    @Test
-    @Order(4)
-    public void question21Test() throws InterruptedException {
-        Thread.sleep(1000L);
-
-        chatPage.setQuestionTextArea("What is your purpose?");
-        chatPage.selectRobot("2345-1");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'To make you feel.')]"));
-        Assertions.assertTrue(answer.isDisplayed());
-    }
-
-    @Test
-    @Order(5)
-    public void question22Test() throws InterruptedException {
-        Thread.sleep(1000L);
-
-        chatPage.setQuestionTextArea("What can you do?");
-        chatPage.selectRobot("2345-1");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'I can make you feel like never before.')]"));
-        Assertions.assertTrue(answer.isDisplayed());
-    }
-
-    @Test
-    @Order(6)
-    public void question23Test() throws InterruptedException {
-        Thread.sleep(2000L);
-
-        chatPage.setQuestionTextArea("Do you have emotions?");
-        chatPage.selectRobot("2345-1");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'No, I do not have emotions.')]"));
-        Assertions.assertTrue(answer.isDisplayed());
-    }
-
-    @Test
-    @Order(7)
-    public void wrongQuestion1Test() throws InterruptedException {
-        Thread.sleep(1000L);
-
-        chatPage.setQuestionTextArea("Wrong Question");
-        chatPage.selectRobot("13DC-2");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-        WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'Sorry')]"));
-        Assertions.assertTrue(answer.isDisplayed());
-    }
-
-    @Test
-    @Order(8)
-    public void wrongQuestion2Test() throws InterruptedException {
-        Thread.sleep(1000L);
-
-        chatPage.setQuestionTextArea("Wrong Question");
-        chatPage.selectRobot("2345-1");
-        chatPage.clickAskButton();
-        chatPage.clearQuestionTextArea();
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        chatPage.setQuestionTextArea(wrongQuestion)
+                .selectRobot(robot)
+                .clickAskButton();
 
         WebElement answer = driver.findElement(By.xpath("//p[contains(text(), 'Sorry')]"));
         Assertions.assertTrue(answer.isDisplayed());

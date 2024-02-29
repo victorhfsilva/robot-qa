@@ -1,41 +1,56 @@
 package pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
-public class LoginPage {
+public class LoginPage extends BasePage{
 
-    private WebDriver driver;
+    @FindBy(name = "username")
+    private WebElement userInput;
 
-    private By userInput = By.name("username");
-    private By passwordInput = By.name("password");
-    private By loginButton = By.xpath("//button[contains(text(), 'Login')]");
+    @FindBy(name = "password")
+    private WebElement passwordInput;
+
+    @FindBy(xpath = "//button[contains(text(), 'Login')]")
+    private WebElement loginButton;
 
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
+        super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    public void setUserInput(String user){
-        driver.findElement(userInput).sendKeys(user);
+    public LoginPage navigateTo(){
+        driver.get(getHomeAddress() + "/login");
+        return this;
     }
 
-    public void setPasswordInput(String password){
-        driver.findElement(passwordInput).sendKeys(password);
+
+    public LoginPage setUserInput(String user){
+        userInput.sendKeys(user);
+        return this;
     }
 
-    public void clickLoginButton(){
-        driver.findElement(loginButton).click();
+    public LoginPage setPasswordInput(String password){
+        passwordInput.sendKeys(password);
+        return this;
     }
 
-    public By getUserInput() {
+    public LoginPage clickLoginButton(){
+        loginButton.click();
+        return this;
+    }
+
+    public WebElement getUserInput() {
         return userInput;
     }
 
-    public By getPasswordInput() {
+    public WebElement getPasswordInput() {
         return passwordInput;
     }
 
-    public By getLoginButton() {
+    public WebElement getLoginButton() {
         return loginButton;
     }
 }

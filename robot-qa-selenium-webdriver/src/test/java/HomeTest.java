@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.HomePage;
-
 import java.time.Duration;
 
 public class HomeTest {
@@ -19,14 +16,10 @@ public class HomeTest {
 
     @BeforeAll
     public static void setup() {
-        driver.get("http://localhost:5173/");
-
-        driver.manage().window().maximize();
-
-        WebElement aboutButton = driver.findElement(homePage.getAboutButton());
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10L));
-        wait.until(ExpectedConditions.visibilityOf(aboutButton));
+        WebElement aboutButton = homePage.getAboutButton();
+        homePage.navigateTo()
+                .maximize()
+                .waitForVisibilityOf(aboutButton, Duration.ofSeconds(10));
     }
 
     @AfterAll
@@ -36,13 +29,8 @@ public class HomeTest {
 
     @Test
     void aboutButtonTest() {
-        String expectedUrl = "http://localhost:5173/about";
-
-        homePage.clickAboutButton();
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10L));
-        wait.until(ExpectedConditions.urlToBe(expectedUrl));
-
+        String expectedUrl = homePage.getHomeAddress() + "/about";
+        homePage.clickAboutButton().waitUrlToBe(expectedUrl, Duration.ofSeconds(10));
         Assertions.assertEquals(expectedUrl, driver.getCurrentUrl());
     }
 }

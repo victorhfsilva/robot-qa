@@ -1,51 +1,62 @@
 package pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
-public class ChatPage {
+public class ChatPage extends BasePage {
 
-    private WebDriver driver;
+    @FindBy(id = "robots-select")
+    private WebElement robotsSelect;
 
-    private By robotsSelect = By.id("robots-select");
+    @FindBy(xpath = "//textarea")
+    private WebElement questionTextArea;
 
-    private By questionTextArea = By.xpath("//textarea");
-
-    private By askButton = By.xpath("//button[contains(text(), 'Ask')]");
+    @FindBy(xpath = "//button[contains(text(), 'Ask')]")
+    private WebElement askButton;
 
     public ChatPage(WebDriver driver) {
-        this.driver = driver;
+        super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    public void setQuestionTextArea(String question) {
-        driver.findElement(questionTextArea).sendKeys(question);
+    public ChatPage navigateTo(){
+        driver.get(getHomeAddress() + "/chat");
+        return this;
     }
 
-    public void clearQuestionTextArea() {
-        driver.findElement(questionTextArea).clear();
+    public ChatPage setQuestionTextArea(String question) {
+        questionTextArea.sendKeys(question);
+        return this;
     }
 
-    public void selectRobot(String robot) {
-        WebElement robotsSelectDropdown = driver.findElement(robotsSelect);
-        Select dropdown = new Select(robotsSelectDropdown);
+    public ChatPage clearQuestionTextArea() {
+        questionTextArea.clear();
+        return this;
+    }
+
+    public ChatPage selectRobot(String robot) {
+        Select dropdown = new Select(robotsSelect);
         dropdown.selectByVisibleText(robot);
+        return this;
     }
 
-    public void clickAskButton() {
-        driver.findElement(askButton).click();
+    public ChatPage clickAskButton() {
+        askButton.click();
+        return this;
     }
 
-    public By getRobotsSelect() {
+    public WebElement getRobotsSelect() {
         return robotsSelect;
     }
 
-    public By getQuestionTextArea() {
+    public WebElement getQuestionTextArea() {
         return questionTextArea;
     }
 
-    public By getAskButton() {
+    public WebElement getAskButton() {
         return askButton;
     }
 }

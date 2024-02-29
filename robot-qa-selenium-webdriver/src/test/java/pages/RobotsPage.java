@@ -1,65 +1,91 @@
 package pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
-public class RobotsPage {
+public class RobotsPage extends BasePage {
 
-    private WebDriver webdriver;
+    @FindBy(xpath = "//h3[contains(text(), '13DC-2')]")
+    private WebElement robotTitle1;
 
-    private By robotTitle1 = By.xpath("//h3[contains(text(), '13DC-2')]");
-    private By robotDescription1 = By.xpath("//p[contains(text(), 'Created to fulfill all your desires.')]");
-    private By robotQuestion11 = By.xpath("//li[contains(text(), 'How are you powered?')]");
-    private By robotQuestion12 = By.xpath("//li[contains(text(), 'What is your purpose?')]");
-    private By robotQuestion13 = By.xpath("//li[contains(text(), 'What can you do?')]");
+    @FindBy(xpath = "//p[contains(text(), 'Created to fulfill all your desires.')]")
+    private WebElement robotDescription1;
 
-    private By robotTitle2 = By.xpath("//h3[contains(text(), '2345-1')]");
-    private By robotDescription2 = By.xpath("//p[contains(text(), 'Created to make you feel human.')]");
-    private By robotQuestion21 = By.xpath("//li[contains(text(), 'Do you have emotions?')]");
-    private By robotQuestion22 = By.xpath("//li[contains(text(), 'What is your purpose?')]");
-    private By robotQuestion23 = By.xpath("//li[contains(text(), 'What can you do?')]");
+    @FindBy(xpath = "//li[contains(text(), 'How are you powered?')]")
+    private WebElement robotQuestion11;
 
-    public RobotsPage(WebDriver webdriver) {
-        this.webdriver = webdriver;
+    @FindBy(xpath = "//li[contains(text(), 'What is your purpose?')]")
+    private WebElement robotQuestion12;
+
+    @FindBy(xpath = "//li[contains(text(), 'What can you do?')]")
+    private WebElement robotQuestion13;
+
+    @FindBy(xpath = "//h3[contains(text(), '2345-1')]")
+    private WebElement robotTitle2;
+
+    @FindBy(xpath = "//p[contains(text(), 'Created to make you feel human.')]")
+    private WebElement robotDescription2;
+
+    @FindBy(xpath = "//li[contains(text(), 'Do you have emotions?')]")
+    private WebElement robotQuestion21;
+
+    @FindBy(xpath = "//li[contains(text(), 'What is your purpose?')]")
+    private WebElement robotQuestion22;
+
+    @FindBy(xpath = "//li[contains(text(), 'What can you do?')]")
+    private WebElement robotQuestion23;
+
+
+    public RobotsPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
     }
 
-    public By getRobotTitle1() {
-        return robotTitle1;
+    public RobotsPage navigateTo(){
+        driver.get(getHomeAddress() + "/robots");
+        return this;
     }
 
-    public By getRobotDescription1() {
-        return robotDescription1;
+    public WebElement getRobotTitle1() {
+        return this.robotTitle1;
     }
 
-    public By getRobotQuestion11() {
-        return robotQuestion11;
+    public WebElement getRobotDescription1() {
+        return this.robotDescription1;
     }
 
-    public By getRobotQuestion12() {
-        return robotQuestion12;
+    public WebElement getRobotQuestion11() {
+        return this.robotQuestion11;
     }
 
-    public By getRobotQuestion13() {
-        return robotQuestion13;
+    public WebElement getRobotQuestion12() {
+        return this.robotQuestion12;
     }
 
-    public By getRobotTitle2() {
-        return robotTitle2;
+    public WebElement getRobotQuestion13() {
+        return this.robotQuestion13;
     }
 
-    public By getRobotDescription2() {
-        return robotDescription2;
+    public WebElement getRobotTitle2() {
+        return this.robotTitle2;
     }
 
-    public By getRobotQuestion21() {
-        return robotQuestion21;
+    public WebElement getRobotDescription2() {
+        return this.robotDescription2;
     }
 
-    public By getRobotQuestion22() {
-        return robotQuestion22;
+    public WebElement getRobotQuestion21() {
+        return this.robotQuestion21;
     }
 
-    public By getRobotQuestion23() {
-        return robotQuestion23;
+    public WebElement getRobotQuestion22() {
+        return this.robotQuestion22;
     }
+
+    public WebElement getRobotQuestion23() {
+        return this.robotQuestion23;
+    }
+
 }
